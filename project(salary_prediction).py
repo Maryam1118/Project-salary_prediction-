@@ -161,41 +161,55 @@ with tab1:
 # TAB 2 — MODEL PERFORMANCE
 # =====================================================
 with tab2:
-  st.header("📊 Model Performance Metrics")
 
-st.write("""
-These evaluation metrics measure how accurately the model predicts salary.
-Lower error values indicate better predictions, while higher R² indicates stronger explanatory power.
-""")
+    st.header("📊 Model Performance Metrics")
 
-col1, col2, col3, col4, col5 = st.columns(5)
+    st.write("""
+    These evaluation metrics measure how accurately the model predicts salary.
+    Lower error values indicate better predictions.
+    """)
 
-col1.metric("MAE", round(mae, 2))
-col2.metric("MSE", round(mse, 2))
-col3.metric("RMSE", round(rmse, 2))
-col4.metric("R² Score", round(r2, 4))
-col5.metric("Adjusted R²", round(adj_r2, 4))
+    col1, col2, col3, col4, col5 = st.columns(5)
 
-st.info("""
-📌 Interpretation Guide:
-• MAE → Average prediction error
-• MSE → Penalizes large errors
-• RMSE → Standard deviation of errors
-• R² → % variance explained
-• Adjusted R² → R² corrected for number of features
-""")
+    col1.metric("MAE", round(mae, 2))
+    col2.metric("MSE", round(mse, 2))
+    col3.metric("RMSE", round(rmse, 2))
+    col4.metric("R² Score", round(r2, 4))
+    col5.metric("Adjusted R²", round(adj_r2, 4))
 
+    st.info("""
+    📌 Interpretation Guide:
+    • MAE → Average prediction error  
+    • MSE → Penalizes large errors  
+    • RMSE → Standard deviation of errors  
+    • R² → % variance explained  
+    • Adjusted R² → Feature-adjusted accuracy
+    """)
+
+    # ================= FEATURE IMPORTANCE =================
     st.subheader("🧠 Feature Importance Analysis")
-    st.write("This chart shows which features have the strongest influence on salary prediction.")
+
+    st.write("""
+    This chart shows which features have the strongest influence on salary prediction.
+    """)
+
     names = pipe.named_steps["prep"].get_feature_names_out()
     imp = pipe.named_steps["model"].feature_importances_
-    fi = pd.DataFrame({"Feature": names, "Importance": imp}).sort_values("Importance", ascending=False).head(10)
-    fig = plt.figure()
-    plt.barh(fi["Feature"], fi["Importance"])
-    plt.gca().invert_yaxis()
-    plt.xlabel("Importance Score")
-    plt.ylabel("Features")
+
+    fi = pd.DataFrame({
+        "Feature": names,
+        "Importance": imp
+    }).sort_values("Importance", ascending=False).head(10)
+
+    fig, ax = plt.subplots()
+    ax.barh(fi["Feature"], fi["Importance"])
+    ax.invert_yaxis()
+    ax.set_title("Top 10 Most Influential Features")
+    ax.set_xlabel("Importance Score")
+    ax.set_ylabel("Features")
+
     st.pyplot(fig)
+
 
 # =====================================================
 # TAB 3 — DATA INSIGHTS
